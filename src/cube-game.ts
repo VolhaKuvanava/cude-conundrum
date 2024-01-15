@@ -37,7 +37,7 @@ export class CubeGame {
 
     private calculateMinCubesRequired(gameSets: string[]): CubeColorCounts {
         return gameSets.reduce((cubes, set)=> {
-            set.split(', ').map((str) => {
+            set.split(', ').forEach((str) => {
                 const [count, color] = str.split(' ');
                 cubes[color] = Math.max(+count, cubes[color]);
             });

@@ -58,5 +58,71 @@ describe('CubeGame', () => {
             const result = cubeGame.calculateTotalPower(emptySequenceGames);
             expect(result).toEqual(0);
         });
+
+        it('should handle games with some empty set and return 0', () => {
+            const gamesWithEmptySequences = ['Game 1: 3 blue, 4 red; ; 2 green'];
+            const result = cubeGame.calculateTotalPower(gamesWithEmptySequences);
+            expect(result).toEqual(0);
+        });
+    });
+
+    describe('calculateMinCubesRequired', () => {
+        it('should calculate the minimum cubes required correctly', () => {
+            const calculateMinCubesRequiredSpy = jest.spyOn(cubeGame as any, 'calculateMinCubesRequired');
+
+            const gameSets = ['3 blue, 4 red', '1 red, 2 green, 6 blue', '2 green'];
+            cubeGame.calculateTotalPower(['Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green']);
+
+            expect(calculateMinCubesRequiredSpy).toHaveBeenCalledWith(gameSets);
+            expect(calculateMinCubesRequiredSpy).toReturnWith({ red: 4, green: 2, blue: 6 })
+        });
+
+        it('should not call calculateMinCubesRequired if no games provided', () => {
+            const calculateMinCubesRequiredSpy = jest.spyOn(cubeGame as any, 'calculateMinCubesRequired');
+
+            cubeGame.calculateTotalPower([]);
+
+            expect(calculateMinCubesRequiredSpy).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('isGameAllowed', () => {
+        it('should return false for invalid game sequence format', () => {
+            const isGameAllowedSpy = jest.spyOn(cubeGame as any, 'isGameAllowed');
+
+            cubeGame.calculatePossibleGameIds(['Invalid Game: invalid sequence']);
+
+            expect(isGameAllowedSpy).not.toHaveBeenCalled();
+        });
+
+        it('should call isGameAllowed for valid game sequences', () => {
+            const isGameAllowedSpy = jest.spyOn(cubeGame as any, 'isGameAllowed');
+
+            cubeGame.calculatePossibleGameIds(['Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green']);
+
+            expect(isGameAllowedSpy).toHaveBeenCalledWith('3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green');
+            expect(isGameAllowedSpy).toReturnWith(true);
+        });
+    });
+
+    describe('isSequenceAllowed', () => {
+        it('should return false for invalid cube sequence format', () => {
+            const isSequenceAllowedSpy = jest.spyOn(cubeGame as any, 'isSequenceAllowed');
+            cubeGame.calculatePossibleGameIds(['Invalid Game: invalid sequence']);
+
+            expect(isSequenceAllowedSpy).not.toHaveBeenCalled();
+        });
+
+        it('should call isSequenceAllowed for valid cube sequences', () => {
+            const isSequenceAllowedSpy = jest.spyOn(cubeGame as any, 'isSequenceAllowed');
+            cubeGame.calculatePossibleGameIds(['Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green']);
+
+            expect(isSequenceAllowedSpy).toHaveBeenNthCalledWith(1, '3 blue, 4 red');
+            expect(isSequenceAllowedSpy).toHaveNthReturnedWith(1, true);
+            expect(isSequenceAllowedSpy).toHaveBeenNthCalledWith(2, '1 red, 2 green, 6 blue');
+            expect(isSequenceAllowedSpy).toHaveNthReturnedWith(2, true);
+            expect(isSequenceAllowedSpy).toHaveBeenNthCalledWith(3, '2 green');
+            expect(isSequenceAllowedSpy).toHaveNthReturnedWith(3, true);
+        });
     });
 });
